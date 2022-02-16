@@ -26,3 +26,4 @@ valorant_store_bot-*.tar
 /tmp/
 
 config/config.exs
+database.db

@@ -7,3 +7,9 @@ config :nosedrum,
   prefix: System.get_env("BOT_PREFIX") || "."
 
 config :tesla, adapter: Tesla.Adapter.Hackney
+
+config :valorant_store_bot,
+  ecto_repos: [ValorantStoreBot.Repo]
+
+config :valorant_store_bot, ValorantStoreBot.Repo,
+  database: "./database.db" # Change anything you want

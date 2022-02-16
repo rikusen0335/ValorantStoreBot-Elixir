@@ -11,7 +11,8 @@ defmodule ValorantStoreBot.Application do
       # Starts a worker by calling: ValorantStoreBot.Worker.start_link(arg)
       # {ValorantStoreBot.Worker, arg}
       Nosedrum.Storage.ETS,
-      ValorantStoreBot
+      ValorantStoreBot,
+      {ValorantStoreBot.Repo, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
