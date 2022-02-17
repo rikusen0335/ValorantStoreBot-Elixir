@@ -37,7 +37,7 @@ defmodule ValorantStoreBot.Cogs.Store do
 
         %{offerRemainingDurationInSeconds: remaining_seconds, skins: skins} = ValorantUtils.get_daily_storefront(response.body)
 
-        player_name = Repo.get_by(ValorantAuth, discord_user_id: Integer.to_string(msg.author.id))
+        %{player_name: player_name} = Repo.get_by(ValorantAuth, discord_user_id: Integer.to_string(msg.author.id))
 
         {h, m, s} = seconds_to_hours_minutes_seconds(remaining_seconds)
         remaining_time = "#{h}時間#{m}分#{s}秒"

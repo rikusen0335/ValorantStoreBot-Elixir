@@ -25,7 +25,16 @@ defmodule ValorantApi do
   end
 
   def get_all_offers(client) do
-    Tesla.get(client, "/store/v1/offers")
+    response = Tesla.get(client, "/store/v1/offers")
+
+    case response do
+      {:ok, data} ->
+        IO.puts("Updating valorant offers...")
+        IO.inspect(data.body)
+        ValorantUtils.update_cache_offers(data.body)
+    end
+
+    response
   end
 
   @doc """
@@ -37,9 +46,20 @@ defmodule ValorantApi do
   """
   @spec find_offer_by_uuid(Tesla.Client.t(), String.t()) :: %Offer{}
   def find_offer_by_uuid(client, weapon_uuid) do
-    get_all_offers(client)
-    # ValorantUtils.get_all_cached_offers()
-    |> case do
+    cached_offers = ValorantUtils.get_all_cached_offers()
+
+    # if no Offers is included in cache, then retrive it from api
+    offers = case cached_offers["Offers"] do
+      nil -> case get_all_offers(client) do
+        {:ok, got_offers} -> got_offers
+        {:error, error} -> IO.inspect(error)
+      end
+      _ -> case cached_offers do
+        {:ok, got_offers} -> got_offers
+      end
+    end
+
+    case offers do
       {:error, error} -> IO.inspect(error)
       {:ok, response} ->
         offer = response.body["Offers"]

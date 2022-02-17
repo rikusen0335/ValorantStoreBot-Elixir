@@ -61,7 +61,7 @@ defmodule RiotAuthApi do
   def get_uuid(client) do
     {:ok, response} = Tesla.get(client, "/userinfo")
 
-    IO.inspect(response)
+    # IO.inspect(response)
 
     response.body["sub"]
   end
