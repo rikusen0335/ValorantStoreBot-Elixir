@@ -13,3 +13,5 @@ config :valorant_store_bot,
 
 config :valorant_store_bot, ValorantStoreBot.Repo,
   database: "./database.db" # Change anything you want
+
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase

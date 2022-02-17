@@ -1,0 +1,3 @@
+defmodule DailyStore do
+
+end

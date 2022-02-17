@@ -3,16 +3,17 @@ defmodule RiotTokenApi do
   Get token to use Valorant API
   Valorant APIで使うトークンを取得する
   """
-  def get_entitlement_token do
-    Tesla.post("/api/token/v1", headers: [{"content-type", "application/json"}])
+  def get_riot_entitlement(client) do
+    {:ok, response} = Tesla.post(client, "/api/token/v1", "")
+    response.body["entitlements_token"]
   end
 
-  @spec client(String.t()) :: Tesla.Client.t()
   def client(riot_token) do
     middleware = [
       {Tesla.Middleware.BaseUrl, "https://entitlements.auth.riotgames.com"},
       Tesla.Middleware.JSON,
-      {Tesla.Middleware.BearerAuth, token: riot_token}
+      {Tesla.Middleware.BearerAuth, token: riot_token},
+      {Tesla.Middleware.Headers, [{"Content-Type", "application/json"}]}
     ]
 
     Tesla.client(middleware)

@@ -6,6 +6,7 @@ defmodule ValorantStoreBot do
   @commands %{
     "store" => ValorantStoreBot.Cogs.Store,
     "login" => ValorantStoreBot.Cogs.Login,
+    "applycmd" => ValorantStoreBot.Cogs.ApplyCommand,
   }
 
   def start_link do
@@ -13,11 +14,23 @@ defmodule ValorantStoreBot do
   end
 
   def handle_event({:READY, _data, _ws_state}) do
+    # Normal commands
     Enum.each(@commands, fn {name, cog} -> CommandStorage.add_command([name], cog) end)
+
+    # Slash application commands
+    case Nosedrum.Interactor.Dispatcher.add_command("login", ValorantStoreBot.Commands.Login, :global) do
+      {:ok, _} -> IO.puts("Registered Login command.")
+      e -> IO.inspect(e, label: "An error occurred registering the Login command")
+    end
   end
 
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
     CommandInvoker.handle_message(msg, CommandStorage)
+  end
+
+  def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
+    # IO.inspect(interaction)
+    Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
   end
 
   def handle_event(_data), do: :ok

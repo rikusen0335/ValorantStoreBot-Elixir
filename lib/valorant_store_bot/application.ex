@@ -11,6 +11,7 @@ defmodule ValorantStoreBot.Application do
       # Starts a worker by calling: ValorantStoreBot.Worker.start_link(arg)
       # {ValorantStoreBot.Worker, arg}
       Nosedrum.Storage.ETS,
+      {Nosedrum.Interactor.Dispatcher, name: Nosedrum.Interactor.Dispatcher},
       ValorantStoreBot,
       {ValorantStoreBot.Repo, []}
     ]

@@ -6,6 +6,7 @@ defmodule ValorantStoreBot.Repo.Migrations.ValorantAuth do
       add :discord_user_id, :string
       add :username,        :string
       add :password,        :string
+      add :player_name,     :string
     end
   end
 end
