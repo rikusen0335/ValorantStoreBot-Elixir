@@ -36,19 +36,6 @@ defmodule ValorantStoreBot.Commands.Logout do
 
   @impl true
   def options() do
-    [
-      %{
-        type: :string,
-        name: "username",
-        description: "RiotアカウントのID(Vandal#11111形式じゃないただのID)",
-        required: true
-      },
-      %{
-        type: :string,
-        name: "password",
-        description: "Riotアカウントのパスワード",
-        required: true
-      },
-    ]
+    []
   end
 end
