@@ -1,6 +1,9 @@
 defmodule ValorantStoreBot do
   alias Nosedrum.Invoker.Split, as: CommandInvoker
   alias Nosedrum.Storage.ETS, as: CommandStorage
+
+  alias Nostrum.Api
+
   use Nostrum.Consumer
 
   @commands %{
@@ -22,6 +25,8 @@ defmodule ValorantStoreBot do
       {:ok, _} -> IO.puts("Registered Login command.")
       e -> IO.inspect(e, label: "An error occurred registering the Login command")
     end
+
+    Api.update_status(:online, ".help")
   end
 
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
