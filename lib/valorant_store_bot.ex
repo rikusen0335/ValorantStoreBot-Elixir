@@ -5,7 +5,6 @@ defmodule ValorantStoreBot do
 
   @commands %{
     "store" => ValorantStoreBot.Cogs.Store,
-    "login" => ValorantStoreBot.Cogs.Login,
     "applycmd" => ValorantStoreBot.Cogs.ApplyCommand,
   }
 

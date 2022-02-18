@@ -21,7 +21,7 @@ defmodule ValorantStoreBot.Cogs.Store do
     Repo.get_by(ValorantAuth, discord_user_id: discord_user_id)
     |> case do
       # if no, send message to user to login
-      nil -> Api.create_message(msg.channel_id, "ログインを先に行ってください。(`/login`)")
+      nil -> Api.create_message(msg.channel_id, "ログインを先に行ってください。(`/login`)\nまた、パスワードがこのボットの管理者にめちゃくちゃバレるので気をつけてください。")
 
       # if yes, retrive data from api
       %ValorantAuth{username: username, password: password} ->
