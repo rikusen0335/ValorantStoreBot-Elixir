@@ -66,7 +66,7 @@ defmodule ValorantStoreBot.Cogs.Store do
         |> put_color(431_948)
         case daily_store_image do
           :timeout -> Api.create_message(msg.channel_id,
-            embed: main_embed,
+            content: ":x: 結果を取得できませんでした。もう一度お試しください。",
             message_reference: %{message_id: msg.id}
           )
           _ -> Api.create_message(msg.channel_id,
