@@ -6,6 +6,7 @@ defmodule ValorantStoreBot do
   @commands %{
     "store" => ValorantStoreBot.Cogs.Store,
     "applycmd" => ValorantStoreBot.Cogs.ApplyCommand,
+    "help" => ValorantStoreBot.Cogs.Help,
   }
 
   def start_link do

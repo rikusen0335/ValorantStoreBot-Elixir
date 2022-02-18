@@ -37,7 +37,7 @@ defmodule ValorantStoreBot.Commands.Login do
           player_name: "#{game_name}##{tagline}",
         })
         [
-          content: "正常にログインできました",
+          content: "#{game_name}##{tagline}として正常にログインできました",
           ephemeral?: true
         ]
     end
