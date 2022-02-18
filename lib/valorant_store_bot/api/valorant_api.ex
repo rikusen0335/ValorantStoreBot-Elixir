@@ -24,6 +24,7 @@ defmodule ValorantApi do
     end
   end
 
+  @spec get_all_offers(Tesla.Env.client()) :: Tesla.Env.result()
   def get_all_offers(client) do
     response = Tesla.get(client, "/store/v1/offers")
 
@@ -46,23 +47,27 @@ defmodule ValorantApi do
   """
   @spec find_offer_by_uuid(Tesla.Client.t(), String.t()) :: %Offer{}
   def find_offer_by_uuid(client, weapon_uuid) do
-    cached_offers = ValorantUtils.get_all_cached_offers()
+    cached_offers_response = ValorantUtils.get_all_cached_offers()
 
     # if no Offers is included in cache, then retrive it from api
+    cached_offers = case cached_offers_response do
+      {:ok, res} -> res
+      {:error, error} -> IO.inspect(error)
+    end
+
     offers = case cached_offers["Offers"] do
-      nil -> case get_all_offers(client) do
-        {:ok, got_offers} -> got_offers
-        {:error, error} -> IO.inspect(error)
-      end
-      _ -> case cached_offers do
-        {:ok, got_offers} -> got_offers
-      end
+      nil ->
+        res = get_all_offers(client)
+        case res do
+          {:ok, r} -> r
+        end
+      _ -> cached_offers
     end
 
     case offers do
-      {:error, error} -> IO.inspect(error)
-      {:ok, response} ->
-        offer = response.body["Offers"]
+      nil -> IO.puts("error")
+      response ->
+        offer = response["Offers"]
         |> Enum.filter(fn offer -> offer["OfferID"] == weapon_uuid end)
         |> Enum.at(0)
 

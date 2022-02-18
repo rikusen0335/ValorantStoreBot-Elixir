@@ -26,7 +26,7 @@ defmodule ValorantStoreBot.Cogs.Store do
       # if yes, retrive data from api
       %ValorantAuth{username: username, password: password} ->
         %Nostrum.Struct.Emoji{}
-        Api.create_message!(msg.channel_id, ":hourglass: 情報を取得中です...")
+        Api.create_message(msg.channel_id, ":hourglass: 情報を取得中です...")
 
         %{riot_token: token, riot_entitlement: entitlement} = RiotAuthUtils.login_and_retrive_token_entitlement(username, password)
 
@@ -58,7 +58,11 @@ defmodule ValorantStoreBot.Cogs.Store do
             |> put_description(offer.cost)
             |> put_thumbnail(skin.display_icon)
 
-            Api.create_message!(msg.channel_id, embed: embed)
+            Api.create_message(msg.channel_id, embed: embed)
+            |> case do
+              {:ok, _msg} -> IO.puts("Offer message has sent.")
+              error -> IO.inspect(error)
+            end
           end)
     end
   end

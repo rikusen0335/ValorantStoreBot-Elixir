@@ -32,9 +32,9 @@ defmodule ValorantStoreBot.Cogs.Login do
     riot_entitlement = token_client |> RiotTokenApi.get_riot_entitlement()
 
     if riot_entitlement == nil do # DMに変える
-      Api.create_message!(msg.channel_id, "ログイン情報が間違っている可能性があります。")
+      Api.create_message(msg.channel_id, "ログイン情報が間違っている可能性があります。")
     else
-      Api.create_message!(msg.channel_id, "正常にログインできました。")
+      Api.create_message(msg.channel_id, "正常にログインできました。")
       Repo.insert(%ValorantAuth{discord_user_id: Integer.to_string(msg.author.id), username: username, password: password, })
     end
   end

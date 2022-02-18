@@ -20,6 +20,8 @@ defmodule ValorantStoreBot.Commands.Login do
     puuid = RiotAuthApi.client(riot_token) |> RiotAuthApi.get_uuid()
     riot_entitlement = token_client |> RiotTokenApi.get_riot_entitlement()
 
+    # IO.puts(riot_entitlement)
+
     case riot_entitlement do
       nil ->
         [
