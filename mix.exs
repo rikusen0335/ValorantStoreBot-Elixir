@@ -30,7 +30,8 @@ defmodule ValorantStoreBot.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, "~> 0.4"},
+      # {:nostrum, "~> 0.4"},
+      {:nostrum, path: "../nostrum", override: true},
       {:nosedrum, "~> 0.4"},
       {:tesla, "~> 1.4"},
 

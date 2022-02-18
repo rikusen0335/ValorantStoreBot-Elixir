@@ -42,28 +42,39 @@ defmodule ValorantStoreBot.Cogs.Store do
         {h, m, s} = seconds_to_hours_minutes_seconds(remaining_seconds)
         remaining_time = "#{h}時間#{m}分#{s}秒"
 
+        skins_with_cost = skins
+        |> Enum.map(fn skin ->
+          %Offer{cost: cost} = valorant_client |> ValorantApi.find_offer_by_uuid(skin.uuid)
+
+          %ImageGenerator.SkinInfo{name: skin.display_name, imageUrl: skin.display_icon, cost: cost}
+        end)
+
+        daily_store_image = ImageGeneratorApi.client() |> ImageGeneratorApi.generate_daily_store(skins_with_cost)
+        |> case do
+          {:ok, response} ->
+            # IO.inspect(response)
+            response.body
+          {:error, error} -> IO.inspect(error)
+        end
+
         # and return data using embed to display
         main_embed = %Nostrum.Struct.Embed{}
         |> put_description(":mag: #{player_name} | **今日のストア** | 残り時間: #{remaining_time}")
         |> put_field("Valorantポイント", valop)
         |> put_field("レディアナイトポイント", radip)
+        # |> put_image(daily_store_image)
         |> put_color(431_948)
-        Api.create_message(msg.channel_id, embed: main_embed, message_reference: %{message_id: msg.id})
-
-        skins |>
-          Enum.each(fn skin ->
-            offer = valorant_client |> ValorantApi.find_offer_by_uuid(skin.uuid)
-            embed = %Nostrum.Struct.Embed{}
-            |> put_title(skin.display_name)
-            |> put_description(offer.cost)
-            |> put_thumbnail(skin.display_icon)
-
-            Api.create_message(msg.channel_id, embed: embed)
-            |> case do
-              {:ok, _msg} -> IO.puts("Offer message has sent.")
-              error -> IO.inspect(error)
-            end
-          end)
+        case daily_store_image do
+          :timeout -> Api.create_message(msg.channel_id,
+            embed: main_embed,
+            message_reference: %{message_id: msg.id}
+          )
+          _ -> Api.create_message(msg.channel_id,
+            embed: main_embed,
+            message_reference: %{message_id: msg.id},
+            file: %{name: "daily_store.png", body: daily_store_image}
+          )
+        end
     end
   end
 
