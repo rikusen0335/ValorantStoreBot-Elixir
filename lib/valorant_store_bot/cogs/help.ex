@@ -19,6 +19,7 @@ defmodule ValorantStoreBot.Cogs.Help do
     embed = %Nostrum.Struct.Embed{}
     |> put_title("コマンドリスト")
     |> put_field("/login", "ログイン用のコマンド")
+    |> put_field("/logout", "ログアウト用のコマンド")
     |> put_field(".store", "毎日更新されるストアを表示します。ログイン必須")
     |> put_field(".applycmd", "/loginが使えないときに試してください")
 

@@ -26,6 +26,11 @@ defmodule ValorantStoreBot do
       e -> IO.inspect(e, label: "An error occurred registering the Login command")
     end
 
+    case Nosedrum.Interactor.Dispatcher.add_command("logout", ValorantStoreBot.Commands.Logout, :global) do
+      {:ok, _} -> IO.puts("Registered Logout command.")
+      e -> IO.inspect(e, label: "An error occurred registering the Logout command")
+    end
+
     Api.update_status(:online, ".help")
   end
 
