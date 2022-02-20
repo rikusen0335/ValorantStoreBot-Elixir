@@ -1,4 +1,4 @@
-defmodule ValorantStoreBot.Cogs.ApplyCommand do
+defmodule ValorantStoreBot.Cogs.RemoveCommand do
   @behaviour Nosedrum.Command
 
   alias Nostrum.Api

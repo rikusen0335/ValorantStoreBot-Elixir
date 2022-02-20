@@ -10,21 +10,29 @@ defmodule ValorantStoreBot.Commands.Logout do
   @impl true
   def command(interaction) do
     userid = Integer.to_string(interaction.member.user.id)
-    Repo.get_by!(ValorantAuth, discord_user_id: userid)
-    |> Repo.delete()
+    Repo.get_by(ValorantAuth, discord_user_id: userid)
     |> case do
-      {:ok, struct} ->
-        IO.inspect(struct)
+      nil ->
         [
-          content: "正常にログアウトできました",
+          content: "ログインしていないときはログアウトできません。",
           ephemeral?: true
         ]
-      {:error, changeset} ->
-        IO.inspect(changeset)
-        [
-          content: "ログアウトできませんでした。もう一度お試しください",
-          ephemeral?: true
-        ]
+      struct ->
+        Repo.delete(struct)
+        |> case do
+          {:ok, struct} ->
+            IO.inspect(struct)
+            [
+              content: "正常にログアウトできました",
+              ephemeral?: true
+            ]
+          {:error, changeset} ->
+            IO.inspect(changeset)
+            [
+              content: "ログアウトできませんでした。もう一度お試しください",
+              ephemeral?: true
+            ]
+    end
     end
   end
 

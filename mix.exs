@@ -31,7 +31,7 @@ defmodule ValorantStoreBot.MixProject do
   defp deps do
     [
       # {:nostrum, "~> 0.4"},
-      {:nostrum, "~> 0.4"},
+      {:nostrum, path: "../nostrum", override: true},
       {:nosedrum, "~> 0.4"},
       {:tesla, "~> 1.4"},
 
