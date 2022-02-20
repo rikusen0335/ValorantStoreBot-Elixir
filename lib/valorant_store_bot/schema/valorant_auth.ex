@@ -12,6 +12,6 @@ defmodule ValorantAuth do
   def changeset(valorant_auth, params \\ %{}) do
     valorant_auth
     |> Ecto.Changeset.cast(params, [:discord_user_id, :username, :password, :player_name])
-    |> Ecto.Changeset.unique_constraint([:discord_user_id])
+    |> Ecto.Changeset.unique_constraint(:discord_user_id, name: :valorant_auth_discord_user_id_index)
   end
 end

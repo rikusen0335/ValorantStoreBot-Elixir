@@ -25,7 +25,6 @@ defmodule ValorantStoreBot.Cogs.Store do
 
       # if yes, retrive data from api
       %ValorantAuth{username: username, password: password} ->
-        %Nostrum.Struct.Emoji{}
         Api.create_message(msg.channel_id, ":hourglass: 情報を取得中です...")
 
         %{riot_token: token, riot_entitlement: entitlement} = RiotAuthUtils.login_and_retrive_token_entitlement(username, password)

@@ -35,22 +35,26 @@ defmodule RiotAuthApi do
   end
 
   @doc """
+  To authorize 2FA account information
+  2FAを認証するときに使う
+  """
+  @spec send_2fa_code(Tesla.Client.t(), String.t(), String.t()) :: Tesla.Env.result()
+  def send_2fa_code(client, cookie, code) do
+    req_body = %{
+      type: "multifactor",
+      code: code,
+      rememberDevice: false
+    }
+
+    Tesla.put(client, "/api/v1/authorization", req_body, headers: [{"cookie", cookie}])
+  end
+
+  @doc """
   To re-authenticate cookie, and you don't need token or something else
   Cookieを再認証するときに使う、トークンなどのものは必要ない
   """
   def reauth_cookie(client) do
     Tesla.get(client, "/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1")
-  end
-
-  def get_riot_access_token(env_result) do
-    # Redirect path contains access_token and id_token
-    # リダイレクトURLのパラメータにaccess_tokenとid_tokenが格納されている
-    env_result.body["response"]["parameters"]["uri"]
-      |> String.split("&")
-      |> Enum.at(0)
-      |> String.split("access_token=")
-      |> Enum.at(1) # We should have much better way than this but for now it's fine
-
   end
 
   @doc """

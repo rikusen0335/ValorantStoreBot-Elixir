@@ -1,6 +1,10 @@
 defmodule ValorantStoreBot.Commands.Login do
   @behaviour Nosedrum.ApplicationCommand
+
+  alias Nostrum.Api
   alias ValorantStoreBot.Repo
+
+  use GenServer
 
   @impl true
   def description() do
@@ -11,35 +15,19 @@ defmodule ValorantStoreBot.Commands.Login do
   def command(interaction) do
     [%{name: "username", value: username}, %{name: "password", value: password}] = interaction.data.options
 
-    auth_client = RiotAuthApi.client("")
-    cookie = auth_client |> RiotAuthApi.auth_cookies()
-    {:ok, riot_token_path} = auth_client |> RiotAuthApi.auth_request(cookie, username, password)
-
-    riot_token = riot_token_path |> RiotAuthApi.get_riot_access_token()
-    token_client = riot_token |> RiotTokenApi.client()
-    puuid = RiotAuthApi.client(riot_token) |> RiotAuthApi.get_uuid()
-    riot_entitlement = token_client |> RiotTokenApi.get_riot_entitlement()
-
-    # IO.puts(riot_entitlement)
-
-    case riot_entitlement do
-      nil ->
-        [
-          content: "ログイン情報が間違っている可能性があります",
-          ephemeral?: true
-        ]
-      _ ->
-        %{game_name: game_name, tagline: tagline} = ValorantApi.client(riot_token, riot_entitlement) |> ValorantApi.get_ingame_name(puuid)
-        Repo.insert(%ValorantAuth{
-          discord_user_id: Integer.to_string(interaction.member.user.id),
-          username: username,
-          password: password,
-          player_name: "#{game_name}##{tagline}",
-        })
-        [
-          content: "#{game_name}##{tagline}として正常にログインできました",
-          ephemeral?: true
-        ]
+    discord_user_id = DiscordUtils.get_user_id(interaction)
+    Repo.get_by(ValorantAuth, discord_user_id: discord_user_id)
+    |> case do
+      nil -> RiotAuthUtils.request_login(interaction, username, password)
+      %ValorantAuth{player_name: player_name} ->
+        case player_name do
+          nil -> RiotAuthUtils.request_login(interaction, username, password)
+          _ ->
+            [
+              content: "すでにログインしています。ログアウトする場合は/logoutを使用してください。",
+              ephemeral?: true
+            ]
+        end
     end
   end
 

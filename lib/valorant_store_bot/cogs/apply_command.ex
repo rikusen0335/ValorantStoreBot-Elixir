@@ -28,5 +28,15 @@ defmodule ValorantStoreBot.Cogs.ApplyCommand do
       {:ok, _} -> IO.puts("Registered Logout command.")
       e -> IO.inspect(e, label: "An error occurred registering the Logout command")
     end
+
+    case Nosedrum.Interactor.Dispatcher.add_command("store", ValorantStoreBot.Commands.Store, msg.guild_id) do
+      {:ok, _} -> IO.puts("Registered Store command.")
+      e -> IO.inspect(e, label: "An error occurred registering the Store command")
+    end
+
+    case Nosedrum.Interactor.Dispatcher.add_command("ping", ValorantStoreBot.Commands.Ping, msg.guild_id) do
+      {:ok, _} -> IO.puts("Registered Ping command.")
+      e -> IO.inspect(e, label: "An error occurred registering the Ping command")
+    end
   end
 end

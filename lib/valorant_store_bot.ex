@@ -7,7 +7,6 @@ defmodule ValorantStoreBot do
   use Nostrum.Consumer
 
   @commands %{
-    "store" => ValorantStoreBot.Cogs.Store,
     "applycmd" => ValorantStoreBot.Cogs.ApplyCommand,
     "help" => ValorantStoreBot.Cogs.Help,
   }
@@ -31,6 +30,16 @@ defmodule ValorantStoreBot do
       e -> IO.inspect(e, label: "An error occurred registering the Logout command")
     end
 
+    case Nosedrum.Interactor.Dispatcher.add_command("store", ValorantStoreBot.Commands.Store, :global) do
+      {:ok, _} -> IO.puts("Registered Store command.")
+      e -> IO.inspect(e, label: "An error occurred registering the Store command")
+    end
+
+    case Nosedrum.Interactor.Dispatcher.add_command("ping", ValorantStoreBot.Commands.Ping, :global) do
+      {:ok, _} -> IO.puts("Registered Ping command.")
+      e -> IO.inspect(e, label: "An error occurred registering the Ping command")
+    end
+
     Api.update_status(:online, ".help")
   end
 
@@ -39,8 +48,11 @@ defmodule ValorantStoreBot do
   end
 
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
-    # IO.inspect(interaction)
-    Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
+    Handler.Interaction.handle(interaction)
+    |> case do
+      {:ok} -> IO.puts("Responded to interaction")
+      {:error, _} -> Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
+    end
   end
 
   def handle_event(_data), do: :ok
