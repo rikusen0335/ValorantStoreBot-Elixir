@@ -44,7 +44,7 @@ defmodule Handler.Interaction do
                 |> Repo.update()
                 |> case do
                   {:ok, struct} -> IO.inspect(struct, label: "Successfully updated Valorant auth data")
-                  {:error, changeset} -> IO.inspect(changeset, label: "Failed to updatte the Valorant auth data")
+                  {:error, changeset} -> IO.inspect(changeset, label: "Failed to update the Valorant auth data")
                 end
             end
           {:error, error} -> IO.inspect(error)
