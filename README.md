@@ -11,3 +11,24 @@ mix run --no-halt
 
 iex -S mix run --no-halt
 ```
+
+A common store flow:
+```mermaid
+sequenceDiagram
+    participant User
+    participant Bot
+    User->>Bot: Request store
+    Bot->>VAPI: Attempt login with username and password
+    alt is succeed
+        VAPI->>Bot: Return token
+    else need 2FA
+        VAPI->>Bot: 2FA Cookie
+        Bot->>User: Request to input 2FA code
+        User->>Bot: Send 2FA code
+        Bot->>VAPI: Send 2FA code
+        VAPI->>Bot: Return token
+    end
+    Bot->>VAPI: Request store with token and entitlement
+    VAPI->>Bot: Return store data
+    Bot->>User: Send store data
+```
