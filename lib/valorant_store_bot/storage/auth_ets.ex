@@ -1,4 +1,13 @@
 defmodule Storage.AuthETS do
+  @moduledoc """
+  This module handles the authentication state to handle interaction.
+
+  To use update the state:
+  Storage.AuthETS.update(interaction.member.user.id, "2fa", %{})
+
+  state_name varity are:
+  "store", "auth", "2fa"
+  """
 
   alias Nostrum.Snowflake
 
@@ -6,19 +15,12 @@ defmodule Storage.AuthETS do
     :ets.new(:auth_ets, [:set, :protected, :named_table])
   end
 
-  @spec update(Snowflake.t(), tuple()) :: {:ok} | {:error, String.t()}
-  def update(discord_user_id, state_tuple) do
-    data_tuple? = :ets.lookup(:auth_ets, discord_user_id)
-
-    data_tuple?
-    |> is_tuple()
-    |> case do
-      # It's returning tuple data
-      true -> :ets.insert_new()
-
-      # Or else not
-      false -> :ets.insert(state_tuple)
-    end
-    {:ok}
+  @doc """
+  Will handle only just update the state
+  状態の更新のみを扱う
+  """
+  @spec update(Snowflake.t(), String.t(), map()) :: true
+  def update(discord_user_id, state_name, state_map) do
+    :ets.insert(:auth_ets, {discord_user_id, state_name, state_map})
   end
 end

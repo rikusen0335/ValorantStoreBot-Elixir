@@ -16,6 +16,9 @@ defmodule ValorantStoreBot do
   end
 
   def handle_event({:READY, _data, _ws_state}) do
+    # ETS for the Application
+    Storage.AuthETS.init_table()
+
     # Normal commands
     Enum.each(@commands, fn {name, cog} -> CommandStorage.add_command([name], cog) end)
 

@@ -10,6 +10,11 @@ defmodule Handler.Interaction do
     execute(interaction)
   end
 
+  defp execute(%Interaction{type: 2} = interaction) do
+    IO.inspect(interaction)
+    {:ok}
+  end
+
   @doc """
   Get a 2fa code from the modal
   モーダルから送られてきた2段階認証のコードを取得する
