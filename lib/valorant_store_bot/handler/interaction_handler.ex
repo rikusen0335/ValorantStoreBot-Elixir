@@ -11,7 +11,10 @@ defmodule Handler.Interaction do
   end
 
   defp execute(%Interaction{type: 2} = interaction) do
-    IO.inspect(interaction)
+    # IO.inspect(interaction)
+    # IO.puts(interaction.data.name)
+
+
     {:ok}
   end
 
