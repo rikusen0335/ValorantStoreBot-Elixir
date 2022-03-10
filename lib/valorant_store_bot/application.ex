@@ -12,7 +12,7 @@ defmodule ValorantStoreBot.Application do
       # {ValorantStoreBot.Worker, arg}
       Nosedrum.Storage.ETS,
       {Nosedrum.Interactor.Dispatcher, name: Nosedrum.Interactor.Dispatcher},
-      ValorantStoreBot,
+      {ValorantStoreBot, restart: :permanent},
       {ValorantStoreBot.Repo, []}
     ]
 

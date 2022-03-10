@@ -1,5 +1,27 @@
 defmodule ValorantUtils do
 
+  def get_daily_store(token, entitlement) do
+    valorant_client = ValorantApi.client(token, entitlement)
+    riot_client = RiotAuthApi.client(token)
+
+    puuid = riot_client |> RiotAuthApi.get_uuid()
+
+    {:ok, response} = valorant_client |> ValorantApi.get_storefront(puuid)
+    %{offerRemainingDurationInSeconds: remaining_seconds, skins: skins} = ValorantUtils.get_daily_storefront(response.body)
+
+    {h, m, s} = TimeUtils.seconds_to_hours_minutes_seconds(remaining_seconds)
+    remaining_time = "#{h}時間#{m}分#{s}秒"
+
+    skins_with_cost = skins
+      |> Enum.map(fn skin ->
+        %Offer{cost: cost} = valorant_client |> ValorantApi.find_offer_by_uuid(skin.uuid)
+
+        %ImageGenerator.SkinInfo{name: skin.display_name, imageUrl: skin.display_icon, cost: cost}
+      end)
+
+    %{offer_remaining_duration: remaining_time, skins_with_cost: skins_with_cost}
+  end
+
   @doc """
   Retrive daily storefront data from ValorantApi.get_storefront
   毎日更新されるストアの情報をValorantApi.get_storefrontから取得する

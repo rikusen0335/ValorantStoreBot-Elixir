@@ -12,6 +12,7 @@ defmodule RiotAuthUtils do
   defp handle_authentication(interaction, %{"type" => "multifactor"}) do
     IO.puts("Proceeding 2FA...")
 
+
     Api.create_interaction_response(interaction, %{
       type: 9,
       data: %{
@@ -89,17 +90,29 @@ defmodule RiotAuthUtils do
     })
   end
 
+  @spec retrive_token_and_entitlement(Tesla.Env.body()) :: %{riot_entitlement: String.t(), riot_token: String.t()}
   def retrive_token_and_entitlement(response_body) do
-    riot_token = response_body |> get_riot_access_token()
-    token_client = riot_token |> RiotTokenApi.client()
-    riot_entitlement = token_client |> RiotTokenApi.get_riot_entitlement()
+    response_body |> get_riot_access_token()
+    |> case do
+      nil ->
+        %{
+          riot_token: nil,
+          riot_entitlement: nil,
+        }
+      riot_token ->
+        token_client = riot_token |> RiotTokenApi.client()
+        riot_entitlement = token_client |> RiotTokenApi.get_riot_entitlement()
 
-    %{
-      riot_token: riot_token,
-      riot_entitlement: riot_entitlement,
-    }
+        %{
+          riot_token: riot_token,
+          riot_entitlement: riot_entitlement,
+        }
+    end
   end
 
+  @doc """
+  Return authenticated, or 2FA request
+  """
   def request_login(interaction, username, password) do
     discord_user_id = DiscordUtils.get_user_id(interaction)
     auth_client = RiotAuthApi.client("")
@@ -107,7 +120,7 @@ defmodule RiotAuthUtils do
 
     # Thus auth_request returns token with path, or 2fa response
     # auth_requestは成功時にパスに入ったトークンか、もしくは2段階認証を返す
-    auth_result = auth_client
+    auth_client
     |> RiotAuthApi.auth_request(initial_cookie, username, password)
     |> case do
       {:ok, res} ->
@@ -115,39 +128,50 @@ defmodule RiotAuthUtils do
         |> case do
           nil ->
             Repo.insert(%ValorantAuth{discord_user_id: discord_user_id, username: username, password: password})
-            |> case do
-              {:ok, _struct} -> IO.puts("Successfully saved username and password")
-              {:error, changeset} -> IO.inspect(changeset, label: "Failed to save username and password")
-            end
-          _ -> IO.puts("Data exists. Continue proceeding")
+
         end
-
-        # tfa = 2fa
-        tfa_cookie = Tesla.get_headers(res, "set-cookie") |> Enum.join(";")
-
-        # So we need to overwrite cookie since it's different cookie to use on 2fa
-        Repo.get_by(CookieSession, discord_user_id: discord_user_id)
-        |> case do
-          nil ->
-            Repo.insert(%CookieSession{discord_user_id: discord_user_id, cookie: tfa_cookie})
-            |> case do
-              {:ok, _struct} -> IO.puts("Successfully saved cookie")
-              {:error, changeset} -> IO.inspect(changeset, label: "Failed to save cookie")
-            end
-          struct ->
-            Repo.delete!(struct)
-            Repo.insert(%CookieSession{discord_user_id: discord_user_id, cookie: tfa_cookie})
-            |> case do
-              {:ok, _struct} -> IO.puts("Successfully saved cookie")
-              {:error, changeset} -> IO.inspect(changeset, label: "Failed to save cookie")
-            end
-        end
-
-        handle_authentication(interaction, res.body)
-      {:error, error} -> IO.inspect(error)
     end
+    # auth_client
+    # |> RiotAuthApi.auth_request(initial_cookie, username, password)
+    # |> case do
+    #   {:ok, res} ->
+    #     Repo.get_by(ValorantAuth, discord_user_id: discord_user_id)
+    #     |> case do
+    #       nil ->
+    #         Repo.insert(%ValorantAuth{discord_user_id: discord_user_id, username: username, password: password})
+    #         |> case do
+    #           {:ok, _struct} -> IO.puts("Successfully saved username and password")
+    #           {:error, changeset} -> IO.inspect(changeset, label: "Failed to save username and password")
+    #         end
+    #       _ -> IO.puts("Data exists. Continue proceeding")
+    #     end
 
-    auth_result
+    #     # tfa = 2fa
+    #     tfa_cookie = Tesla.get_headers(res, "set-cookie") |> Enum.join(";")
+
+    #     # So we need to overwrite cookie since it's different cookie to use on 2fa
+    #     Repo.get_by(CookieSession, discord_user_id: discord_user_id)
+    #     |> case do
+    #       nil ->
+    #         Repo.insert(%CookieSession{discord_user_id: discord_user_id, cookie: tfa_cookie})
+    #         |> case do
+    #           {:ok, _struct} -> IO.puts("Successfully saved cookie")
+    #           {:error, changeset} -> IO.inspect(changeset, label: "Failed to save cookie")
+    #         end
+    #       struct ->
+    #         Repo.delete!(struct)
+    #         Repo.insert(%CookieSession{discord_user_id: discord_user_id, cookie: tfa_cookie})
+    #         |> case do
+    #           {:ok, _struct} -> IO.puts("Successfully saved cookie")
+    #           {:error, changeset} -> IO.inspect(changeset, label: "Failed to save cookie")
+    #         end
+    #     end
+
+    #     handle_authentication(interaction, res.body)
+    #   {:error, error} -> IO.inspect(error)
+    # end
+
+    # {:ok}
   end
 
   # @spec login_and_retrive_token_entitlement(String.t(), String.t()) :: %{String.t(), String.t()}
@@ -214,13 +238,21 @@ defmodule RiotAuthUtils do
     }
   end
 
+  @doc """
+  Return token either nil
+  トークンか、トークンがなければnilを返す
+  """
   def get_riot_access_token(response_body) do
     # Redirect path contains access_token and id_token
     # リダイレクトURLのパラメータにaccess_tokenとid_tokenが格納されている
-    response_body["response"]["parameters"]["uri"]
+    try do
+      response_body["response"]["parameters"]["uri"]
       |> String.split("&")
       |> Enum.at(0)
       |> String.split("access_token=")
       |> Enum.at(1) # We should have much better way than this but for now it's fine
+    rescue
+      FunctionClauseError -> nil
+    end
   end
 end
